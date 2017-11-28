@@ -13,7 +13,7 @@ func TestWxPay_Do(t *testing.T) {
 	o.SpbillCreateIp = "192.168.1.109"
 	o.NotifyUrl = "https://www.baidu.com/"
 	o.TradeType = APP
-	cli := WxPayClient("wx06ea7739672474ee", "1485757472", "7c01cd5266b24989bd58127c49046568")
+	cli := WxPayClient("wx06ea77aa9672474ee", "1385757472", "7c01cd5266b24989bd58127c490fa568")
 
 	cli.Do(o)
 	fmt.Println(o.Sign)
