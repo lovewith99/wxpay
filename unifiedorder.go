@@ -52,7 +52,6 @@ func (w *WxPayUnifiedOrder) setSign(sign string)  {
 
 func (w *WxPayUnifiedOrder) SignStr() string {
 	p := ReflectStruct(*w)
-	p["nonce_str"] = "uwfp3elfft99hhu0t1zrp5xnxv1vyws700tk" // RandString(36)
 
 	return signStr(p)
 }

@@ -69,6 +69,7 @@ func isEmptyValue(v reflect.Value) bool {
 
 func signStr(m map[string]interface{}) string {
 	delete(m, "sign")
+	m["nonce_str"] = RandString(36)
 
 	var i = 0
 	var keys = make([]string, len(m))
