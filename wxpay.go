@@ -7,6 +7,8 @@ import (
 	"encoding/hex"
 	"strings"
 	"encoding/xml"
+	"io"
+	"io/ioutil"
 )
 
 // 交易类型
@@ -45,6 +47,10 @@ type RequestParams interface {
 	signType() string
 }
 
+type ResponseResult interface {
+	IsSuccess() bool
+}
+
 type WxPay struct {
 	appId string       // 微信支付分配的公共账号ID
 	mchId string
@@ -68,7 +74,7 @@ func (cli *WxPay) SignWithMD5(signStr string) string {
 	return strings.ToUpper(hex.EncodeToString(md5V[:]))
 }
 
-func (cli *WxPay) Do(p RequestParams) error {
+func (cli *WxPay) DoRequest(p RequestParams) (*http.Response, error) {
 	p.setAppId(cli.appId)
 	p.setMchId(cli.mchId)
 
@@ -81,9 +87,24 @@ func (cli *WxPay) Do(p RequestParams) error {
 
 	b, err := xml.Marshal(p)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Println(Bytes2Str(b))
-	return nil
+	var buf io.Reader
+	buf = strings.NewReader(Bytes2Str(b))
+
+	req, err := http.NewRequest("POST", p.GateWay(), buf)
+	if err != nil {
+		return nil, err
+	}
+	return cli.Do(req)
+}
+
+func (cli *WxPay) ReadResponse(resp *http.Response) ([]byte, error) {
+	b, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	return b, err
 }
