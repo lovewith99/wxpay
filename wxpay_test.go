@@ -15,6 +15,9 @@ func TestWxPay_Do(t *testing.T) {
 	o.TradeType = APP
 	cli := WxPayClient("wx06ea77aa9672474ee", "1385757472", "7c01cd5266b24989bd58127c490fa568")
 
-	cli.Do(o)
-	fmt.Println(o.Sign)
+	resp, _ := cli.DoRequest(o)
+	var data WxPayUnifiedOrderResp
+	cli.ReadResponse(resp, &data)
+
+	fmt.Println(data)
 }
