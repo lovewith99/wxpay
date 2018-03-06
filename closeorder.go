@@ -40,18 +40,18 @@ func (w *WxPayCloseOrder) signType() string {
 }
 
 type WxPayCloseOrderResp struct {
-	ReturnCode string `xml:"return_code,cdata"`
-	ReturnMsg string `xml:"return_msg,omitempty,cdata"`
+	ReturnCode string `xml:"return_code,CDATA"`
+	ReturnMsg string `xml:"return_msg,omitempty,CDATA"`
 
 	// 以下字段在return_code为SUCCESS的时候有返回
-	AppId string `xml:"appid,omitempty,cdata"`
-	MuchId string `xml:"mch_id,omitempty,cdata"`
-	NonceStr string `xml:"nonce_str,omitempty,cdata"`
-	Sign string `xml:"sign,omitempty,cdata"`
-	ResultCode string `xml:"result_code,omitempty,cdata"`
-	ResultMsg string `xml:"result_msg,omitempty,cdata"`
-	ErrCode string `xml:"err_code,omitempty,cdata"`
-	ErrCodeDes string `xml:"err_code_des,omitempty,cdata"`
+	AppId string `xml:"appid,omitempty,CDATA"`
+	MuchId string `xml:"mch_id,omitempty,CDATA"`
+	NonceStr string `xml:"nonce_str,omitempty,CDATA"`
+	Sign string `xml:"sign,omitempty,CDATA"`
+	ResultCode string `xml:"result_code,omitempty,CDATA"`
+	ResultMsg string `xml:"result_msg,omitempty,CDATA"`
+	ErrCode string `xml:"err_code,omitempty,CDATA"`
+	ErrCodeDes string `xml:"err_code_des,omitempty,CDATA"`
 }
 
 func (w *WxPayCloseOrderResp) IsSuccess() bool {
