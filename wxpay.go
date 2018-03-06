@@ -100,11 +100,13 @@ func (cli *WxPay) DoRequest(p RequestParams) (*http.Response, error) {
 	return cli.Do(req)
 }
 
-func (cli *WxPay) ReadResponse(resp *http.Response) ([]byte, error) {
+func (cli *WxPay) ReadResponse(resp *http.Response, data ResponseResult) error {
 	b, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return b, err
+
+	err = xml.Unmarshal(b, data)
+	return err
 }
