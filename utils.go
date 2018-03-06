@@ -69,11 +69,14 @@ func isEmptyValue(v reflect.Value) bool {
 
 func signStr(m map[string]interface{}) string {
 	delete(m, "sign")
-	m["nonce_str"] = RandString(36)
 
 	var i = 0
 	var keys = make([]string, len(m))
 	for k, _ := range m {
+		k = strings.TrimSpace(k)
+		if k == "xml" {
+			continue
+		}
 		keys[i] = k
 		i++
 	}
@@ -81,7 +84,6 @@ func signStr(m map[string]interface{}) string {
 	sort.Strings(keys)
 	var v = make([]string, len(keys))
 	for i, k := range keys {
-		k := strings.TrimSpace(k)
 		v[i] = fmt.Sprintf("%s=%v", k, m[k])
 	}
 
