@@ -34,6 +34,7 @@ func (w *WxPayRefundQuery) setSign(sign string)  {
 }
 
 func (w *WxPayRefundQuery) SingStr() string {
+	w.NonceStr = RandString(32)
 	p := ReflectStruct(*w)
 
 	return signStr(p)

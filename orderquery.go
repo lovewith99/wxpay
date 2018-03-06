@@ -32,6 +32,7 @@ func (w *WxPayOrderQuery) setSign(sign string)  {
 }
 
 func (w *WxPayOrderQuery) SignStr() string {
+	w.NonceStr = RandString(32)
 	p := ReflectStruct(*w)
 
 	return signStr(p)
