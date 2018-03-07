@@ -9,6 +9,7 @@ import (
 	"encoding/xml"
 	"io"
 	"io/ioutil"
+	"errors"
 )
 
 // 交易类型
@@ -109,4 +110,29 @@ func (cli *WxPay) ReadResponse(resp *http.Response, data ResponseResult) error {
 
 	err = xml.Unmarshal(b, data)
 	return err
+}
+
+func (cli *WxPay) AppPayNotification(req *http.Request) (*WxAppPayNotification, error) {
+	b, err := ioutil.ReadAll(req.Body)
+	defer req.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	var noti WxAppPayNotification
+	err = xml.Unmarshal(b, &noti)
+	if err != nil {
+		return nil, err
+	}
+
+	if noti.ReturnCode != "SUCCESS" {
+		return nil, errors.New("notification error")
+	}
+
+	sign := cli.SignWithMD5(signStr(ReflectStruct(noti)))
+	if sign != noti.Sign {
+		return nil, errors.New("签名错误")
+	}
+
+	return &noti, err
 }
