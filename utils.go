@@ -70,15 +70,13 @@ func isEmptyValue(v reflect.Value) bool {
 func signStr(m map[string]interface{}) string {
 	delete(m, "sign")
 
-	var i = 0
-	var keys = make([]string, len(m))
+	var keys = make([]string, 0, len(m))
 	for k, _ := range m {
 		k = strings.TrimSpace(k)
 		if k == "xml" {
 			continue
 		}
-		keys[i] = k
-		i++
+		keys = append(keys, k)
 	}
 
 	sort.Strings(keys)
