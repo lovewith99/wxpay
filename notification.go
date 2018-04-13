@@ -5,29 +5,29 @@ package wxpay
 type WxAppPayNotification struct {
 	// 微信App支付回调
 	ReturnCode string `xml:"return_code"`
-	ReturnMsg  string `xml:"return_msg"`
+	ReturnMsg  string `xml:"return_msg,omitempty"`
 
 	// required
 	AppId         string `xml:"appid"`
 	MchId         string `xml:"mch_id"`
 	NonceStr      string `xml:"nonce_str"`
 	Sign          string `xml:"sign"`
-	ResultCode    string `xml:"result_code"`
+	ResultCode    string `xml:"result_code,omitempty"`
 	Openid        string `xml:"openid"`
-	TradeType     string `xml:"trade_type"`
-	BankType      string `xml:"bank_type"`
+	TradeType     string `xml:"trade_type,omitempty"`
+	BankType      string `xml:"bank_type,omitempty"`
 	TotalFee      string `xml:"total_fee"`
 	CashFee       string `xml:"cash_fee"`
 	TransactionId string `xml:"transaction_id"`
 	OutTradeNo    string `xml:"out_trade_no"`
 	TimeEnd       string `xml:"time_end"`
 
-	DeviceInfo  string `xml:"device_info"`
-	ErrCode     string `xml:"err_code"`
-	ErrCodeDes  string `xml:"err_code_des"`
-	IsSubscribe string `xml:"is_subscribe"`
-	FeeType     string `xml:"fee_type"`
-	CashFeeType string `xml:"cash_fee_type"`
+	DeviceInfo  string `xml:"device_info,omitempty"`
+	ErrCode     string `xml:"err_code,omitempty"`
+	ErrCodeDes  string `xml:"err_code_des,omitempty"`
+	IsSubscribe string `xml:"is_subscribe,omitempty"`
+	FeeType     string `xml:"fee_type,omitempty"`
+	CashFeeType string `xml:"cash_fee_type,omitempty"`
 	//CouponFee string `xml:"coupon_fee"`
 	//CouponCount string `xml:"coupon_count"`
 	//CouponId_$n string `xml:"coupon_id_$n"`
