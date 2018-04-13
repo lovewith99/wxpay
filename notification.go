@@ -12,10 +12,10 @@ type WxAppPayNotification struct {
 	MchId         string `xml:"mch_id"`
 	NonceStr      string `xml:"nonce_str"`
 	Sign          string `xml:"sign"`
-	ResultCode    string `xml:"result_code,omitempty"`
+	ResultCode    string `xml:"result_code"`
 	Openid        string `xml:"openid"`
-	TradeType     string `xml:"trade_type,omitempty"`
-	BankType      string `xml:"bank_type,omitempty"`
+	TradeType     string `xml:"trade_type"`
+	BankType      string `xml:"bank_type"`
 	TotalFee      string `xml:"total_fee"`
 	CashFee       string `xml:"cash_fee"`
 	TransactionId string `xml:"transaction_id"`
