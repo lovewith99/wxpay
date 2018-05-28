@@ -1,26 +1,26 @@
 package wxpay
 
 import (
-	"net/http"
-	"fmt"
 	"crypto/md5"
 	"encoding/hex"
-	"strings"
 	"encoding/xml"
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
-	"errors"
+	"net/http"
+	"strings"
 )
 
 // 交易类型
 const (
 	// 统一下单
-	JSAPI = "JSAPI" // 公众号支付
-	NATIVE  = "NATIVE" // 原生扫码支付
-	APP  = "APP" // app支付
+	JSAPI  = "JSAPI"  // 公众号支付
+	NATIVE = "NATIVE" // 原生扫码支付
+	APP    = "APP"    // app支付
 
 	// 刷卡支付有单独的支付接口，不调用统一下单接口
-	MICROPAY = "MICROPAY"  // 刷卡支付
+	MICROPAY = "MICROPAY" // 刷卡支付
 )
 
 // 货币类型
@@ -35,7 +35,7 @@ const (
 
 // 签名类型
 const (
-	MD5 = "MD5"
+	MD5         = "MD5"
 	HMAC_SHA256 = "HMAC-SHA256"
 )
 
@@ -53,7 +53,7 @@ type ResponseResult interface {
 }
 
 type WxPay struct {
-	appId string       // 微信支付分配的公共账号ID
+	appId string // 微信支付分配的公共账号ID
 	mchId string
 	key   string
 	*http.Client
@@ -61,16 +61,15 @@ type WxPay struct {
 
 func WxPayClient(appId, mchId, key string) *WxPay {
 	return &WxPay{
-		appId: appId,
-		mchId: mchId,
-		key:   key,
+		appId:  appId,
+		mchId:  mchId,
+		key:    key,
 		Client: http.DefaultClient,
 	}
 }
 
 func (cli *WxPay) SignWithMD5(signStr string) string {
 	signStr = fmt.Sprintf("%s&key=%s", signStr, cli.key)
-
 	md5V := md5.Sum(Str2Bytes(signStr))
 	return strings.ToUpper(hex.EncodeToString(md5V[:]))
 }
