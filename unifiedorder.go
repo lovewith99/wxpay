@@ -1,22 +1,22 @@
 package wxpay
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/url"
-	"time"
-	"strconv"
 	"sort"
-	"bytes"
+	"strconv"
+	"time"
 )
 
-// 统一下单
+// WxPayUnifiedOrder 统一下单
 // document: https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
 type WxPayUnifiedOrder struct {
-	XMLName        struct{} `xml:"xml"`
+	XMLName struct{} `xml:"xml"`
 
-	AppId          string `xml:"appid"`                      // 公众账号id
-	MchId          string `xml:"mch_id"`                     // 商户号
-	Sign           string `xml:"sign"`                       // 签名
+	AppId string `xml:"appid"`  // 公众账号id
+	MchId string `xml:"mch_id"` // 商户号
+	Sign  string `xml:"sign"`   // 签名
 
 	DeviceInfo     string `xml:"device_info,omitempty"`      // 设备号
 	NonceStr       string `xml:"nonce_str"`                  // 随机字符串
@@ -26,7 +26,7 @@ type WxPayUnifiedOrder struct {
 	Attach         string `xml:"attach,omitempty"`           // 附加数据
 	OutTradeNo     string `xml:"out_trade_no"`               // 商户订单号
 	FeeType        string `xml:"fee_type,omitempty"`         // 标价币种
-	TotalFee       int `xml:"total_fee"`                     // 订单总金额,单位分
+	TotalFee       int    `xml:"total_fee"`                  // 订单总金额,单位分
 	SpbillCreateIp string `xml:"spbill_create_ip"`           // 终端IP
 	TimeStart      string `xml:"time_start,omitempty"`       // 交易起始时间: 20091225091010
 	TimeExpire     string `xml:"time_expire,omitempty"`      // 交易结束时间: 20091227091010
@@ -94,6 +94,7 @@ func (w *WxPayUnifiedOrder) SetSceneInfo(id, name, areaCode, address string) err
 	return nil
 }
 
+// WxPayUnifiedOrderResp ...
 type WxPayUnifiedOrderResp struct {
 	ReturnCode string `xml:"return_code,CDATA"`
 	ReturnMsg  string `xml:"return_msg,omitempty,CDATA"`
@@ -109,9 +110,9 @@ type WxPayUnifiedOrderResp struct {
 	ErrCodeDes string `xml:"err_code_des,omitempty,CDATA"`
 
 	// 以下字段在return_code 和result_code都为SUCCESS的时候有返回
-	TradeType  string `xml:"trade_type,omitempty,CDATA"`
-	PrepayId   string `xml:"prepay_id,omitempty,CDATA"`
-	CodeUrl    string `xml:"code_url,omitempty,CDATA"`
+	TradeType string `xml:"trade_type,omitempty,CDATA"`
+	PrepayId  string `xml:"prepay_id,omitempty,CDATA"`
+	CodeUrl   string `xml:"code_url,omitempty,CDATA"`
 }
 
 func (w *WxPayUnifiedOrderResp) IsSuccess() bool {

@@ -1,6 +1,6 @@
 package wxpay
 
-// 微信支付结果通知(支付回调)
+// WxAppPayNotification 微信支付结果通知(支付回调)
 // 文档： https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
 type WxAppPayNotification struct {
 	// 微信App支付回调
