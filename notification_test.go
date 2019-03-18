@@ -1,10 +1,10 @@
 package wxpay
 
 import (
+	"testing"
 	"encoding/xml"
 	"fmt"
 	"net/http"
-	"testing"
 )
 
 var data = []byte(`<xml><appid><![CDATA[wxac74ab90ef2da8ab]]></appid>
@@ -29,12 +29,12 @@ var data = []byte(`<xml><appid><![CDATA[wxac74ab90ef2da8ab]]></appid>
 func TestWxPay_AppPayNotification(t *testing.T) {
 	appId := "wxac74ab90ef2da8ab"
 	mchId := "1500441352"
-	key := "d3dRCtTnw4pdRkreHC8JXuK63DgPuhOF"
+	key   := "d3dRCtTnw4pdRkreHC8JXuK63DgPuhOF"
 
-	cli := &WxPay{
-		appId:  appId,
-		mchId:  mchId,
-		key:    key,
+	cli :=  &WxPay{
+		appId: appId,
+		mchId: mchId,
+		key:   key,
 		Client: http.DefaultClient,
 	}
 

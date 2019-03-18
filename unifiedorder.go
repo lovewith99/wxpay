@@ -3,6 +3,7 @@ package wxpay
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"sort"
 	"strconv"
@@ -32,7 +33,7 @@ type WxPayUnifiedOrder struct {
 	TimeExpire     string `xml:"time_expire,omitempty"`      // 交易结束时间: 20091227091010
 	GoodsTag       string `xml:"goods_tag,omitempty"`        // 订单优惠标记
 	NotifyUrl      string `xml:"notify_url"`                 // 通知地址
-	TradeType      string `xml:"trade_type"`                 // 交易类型
+	TradeType      string `xml:"trade_type"`                 // 交易类型	JSAPI: 公众号支付 NATIVE: 扫码支付 APP: APP支付
 	ProductId      string `xml:"product_id,omitempty"`       // 商品ID
 	LimitPay       string `xml:"limit_pay,omitempty"`        // 指定支付方式,上传此参数no_credit--可限制用户不能使用信用卡支付
 	OpenId         string `xml:"openid,omitempty"`           // 用户标识
@@ -94,7 +95,6 @@ func (w *WxPayUnifiedOrder) SetSceneInfo(id, name, areaCode, address string) err
 	return nil
 }
 
-// WxPayUnifiedOrderResp ...
 type WxPayUnifiedOrderResp struct {
 	ReturnCode string `xml:"return_code,CDATA"`
 	ReturnMsg  string `xml:"return_msg,omitempty,CDATA"`
@@ -119,14 +119,27 @@ func (w *WxPayUnifiedOrderResp) IsSuccess() bool {
 	return (w.ReturnCode == "SUCCESS" && w.ResultCode == "SUCCESS")
 }
 
+// RequestData app统一下单支付参数 https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_12
+// 公众号支付 https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_7&index=6
 func (w *WxPayUnifiedOrderResp) RequestData(cli *WxPay) map[string]interface{} {
 	p := url.Values{}
-	p.Add("appid", w.AppId)
-	p.Add("partnerid", w.MchId)
-	p.Add("prepayid", w.PrepayId)
-	p.Add("package", "Sign=WXPay")
-	p.Add("noncestr", RandString(32))
-	p.Add("timestamp", strconv.FormatInt(time.Now().Unix(), 10))
+	if w.TradeType == "APP" {
+		p.Add("appid", w.AppId)
+		p.Add("partnerid", w.MchId)
+		p.Add("prepayid", w.PrepayId)
+		p.Add("package", "Sign=WXPay")
+		p.Add("noncestr", RandString(32))
+		p.Add("timestamp", strconv.FormatInt(time.Now().Unix(), 10))
+	}
+
+	if w.TradeType == "JSAPI" {
+		p.Add("appId", w.AppId)
+		p.Add("timeStamp", strconv.FormatInt(time.Now().Unix(), 10))
+		p.Add("nonceStr", w.NonceStr)
+		// p.Add("nonceStr", RandString(32))
+		p.Add("package", fmt.Sprintf("prepay_id=%s", w.PrepayId))
+		p.Add("signType", "MD5")
+	}
 
 	var buf bytes.Buffer
 	keys := make([]string, 0, len(p))
@@ -145,16 +158,30 @@ func (w *WxPayUnifiedOrderResp) RequestData(cli *WxPay) map[string]interface{} {
 			buf.WriteString(v)
 		}
 	}
+	signStr := buf.String()
+	sign := cli.SignWithMD5(signStr)
 
-	s := cli.SignWithMD5(buf.String())
-
-	return map[string]interface{}{
-		"appId":        w.AppId,
-		"partnerId":    w.MchId,
-		"prepayId":     w.PrepayId,
-		"packageValue": "Sign=WXPay",
-		"nonceStr":     p.Get("noncestr"),
-		"timeStamp":    p.Get("timestamp"),
-		"sign":         s,
+	if w.TradeType == "APP" {
+		return map[string]interface{}{
+			"appId":        w.AppId,
+			"partnerId":    w.MchId,
+			"prepayId":     w.PrepayId,
+			"packageValue": "Sign=WXPay",
+			"nonceStr":     p.Get("noncestr"),
+			"timeStamp":    p.Get("timestamp"),
+			"sign":         sign,
+		}
 	}
+
+	if w.TradeType == "JSAPI" {
+		return map[string]interface{}{
+			"appId":     w.AppId,
+			"timeStamp": p.Get("timeStamp"),
+			"nonceStr":  p.Get("nonceStr"),
+			"package":   p.Get("package"),
+			"signType":  p.Get("signType"),
+			"paySign":   sign,
+		}
+	}
+	return nil
 }

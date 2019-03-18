@@ -1,6 +1,6 @@
 package wxpay
 
-// WxAppPayNotification 微信支付结果通知(支付回调)
+// 微信支付结果通知(支付回调)
 // 文档： https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
 type WxAppPayNotification struct {
 	// 微信App支付回调
@@ -28,9 +28,10 @@ type WxAppPayNotification struct {
 	IsSubscribe string `xml:"is_subscribe,omitempty"`
 	FeeType     string `xml:"fee_type,omitempty"`
 	CashFeeType string `xml:"cash_fee_type,omitempty"`
-	//CouponFee string `xml:"coupon_fee"`
-	//CouponCount string `xml:"coupon_count"`
-	//CouponId_$n string `xml:"coupon_id_$n"`
-	//CouponFee_$n string `xml:"coupon_fee_$n"`
+
+	// CouponFee   string `xml:"coupon_fee"`
+	// CouponCount string `xml:"coupon_count"`
+	// CouponID   string `xml:"coupon_id_$n"`
+	// CouponFee  string `xml:"coupon_fee_$n"`
 	Attach string `xml:"attach"`
 }
