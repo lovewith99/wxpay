@@ -1,6 +1,7 @@
 package wxpay
 
 import (
+	"bytes"
 	"crypto/md5"
 	"crypto/tls"
 	"encoding/hex"
@@ -10,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -165,20 +167,77 @@ func (cli *WxPay) AppPayNotification(req *http.Request) (*WxAppPayNotification, 
 		return nil, err
 	}
 
+	_, err = cli.processResponseXml(string(b))
+
+	if err != nil {
+		return nil, err
+	}
+
 	var noti WxAppPayNotification
 	err = xml.Unmarshal(b, &noti)
 	if err != nil {
 		return nil, err
 	}
 
-	if noti.ReturnCode != "SUCCESS" {
-		return nil, errors.New("notification error")
-	}
-
-	sign := cli.SignWithMD5(signStr(ReflectStruct(noti)))
-	if sign != noti.Sign {
-		return nil, errors.New("签名错误")
-	}
-
 	return &noti, err
+}
+
+// 处理 API返回数据，转换成Map对象。return_code为SUCCESS时，验证签名。
+func (cli *WxPay) processResponseXml(xmlStr string) (Params, error) {
+	var returnCode string
+	params := XmlToMap(xmlStr)
+	if params.ContainsKey("return_code") {
+		returnCode = params.GetString("return_code")
+	} else {
+		return params, errors.New("no return_code in XML")
+	}
+	if returnCode == "FAIL" {
+		return params, nil
+	} else if returnCode == "SUCCESS" {
+		if cli.ValidSign(params) {
+			return params, nil
+		} else {
+			return params, errors.New("invalid sign value in XML")
+		}
+	} else {
+		return params, errors.New("return_code value is invalid in XML")
+	}
+}
+
+// 验证签名
+func (cli *WxPay) ValidSign(params Params) bool {
+	if !params.ContainsKey("sign") {
+		return false
+	}
+	return params.GetString("sign") == cli.Sign(params)
+}
+
+// 签名
+func (cli *WxPay) Sign(params Params) string {
+	var keys = make([]string, 0, len(params))
+	for k := range params {
+		if k != "sign" {
+			keys = append(keys, k)
+		}
+	}
+
+	sort.Strings(keys)
+
+	var buf bytes.Buffer
+	for _, k := range keys {
+		if len(params.GetString(k)) > 0 {
+			buf.WriteString(k)
+			buf.WriteString(`=`)
+			buf.WriteString(params.GetString(k))
+			buf.WriteString(`&`)
+		}
+	}
+	// 加入key作加密密钥
+	buf.WriteString(`key=`)
+	buf.WriteString(cli.key)
+
+	// 默认用MD5签名
+	dataMd5 := md5.Sum(buf.Bytes())
+	str := hex.EncodeToString(dataMd5[:])
+	return strings.ToUpper(str)
 }
