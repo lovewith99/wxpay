@@ -74,7 +74,7 @@ func NewWxPay(appId, mchId, key string, opts ...func(*Client) error) (*Client, e
 	return &cli, nil
 }
 
-func WithTLS(certpem, keypem string) func(*Client) error {
+func WithTlsFile(certpem, keypem string) func(*Client) error {
 	return func(cli *Client) error {
 		cert, err := tls.LoadX509KeyPair(certpem, keypem)
 		if err != nil {
