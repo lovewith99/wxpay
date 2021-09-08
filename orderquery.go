@@ -2,47 +2,18 @@ package wxpay
 
 // 订单查询
 // document: https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_2
-type WxPayOrderQuery struct {
-	XMLName struct{} `xml:"xml"`
-
-	AppId string `xml:"appid"`
-	MchId string `xml:"mch_id"`
+type OrderQueryReq struct {
+	Request
 
 	TransactionId string `xml:"transaction_id,omitempty"`
 	OutTradeNo    string `xml:"out_trade_no,omitempty"`
-	NonceStr      string `xml:"nonce_str"`
-	Sign          string `xml:"sign"`
-	SignType      string `xml:"sign_type,omitempty"`
 }
 
-func (w *WxPayOrderQuery) GateWay() string {
+func (w *OrderQueryReq) GateWay() string {
 	return "https://api.mch.weixin.qq.com/pay/orderquery"
 }
 
-func (w *WxPayOrderQuery) setAppId(appId string) {
-	w.AppId = appId
-}
-
-func (w *WxPayOrderQuery) setMchId(mchId string) {
-	w.MchId = mchId
-}
-
-func (w *WxPayOrderQuery) setSign(sign string) {
-	w.Sign = sign
-}
-
-func (w *WxPayOrderQuery) SignStr() string {
-	w.NonceStr = RandString(32)
-	p := ReflectStruct(*w)
-
-	return signStr(p)
-}
-
-func (w *WxPayOrderQuery) signType() string {
-	return w.SignType
-}
-
-type WxPayOrderQueryResp struct {
+type OrderQueryResp struct {
 	ReturnCode string `xml:"return_code,CDATA"`
 	ReturnMsg  string `xml:"return_msg,omitempty,CDATA"`
 
@@ -80,6 +51,6 @@ type WxPayOrderQueryResp struct {
 	TradeStateDesc     string `xml:"trade_state_desc,omitempty,CDATA"`
 }
 
-func (w *WxPayOrderQueryResp) IsSuccess() bool {
+func (w *OrderQueryResp) IsSuccess() bool {
 	return (w.ReturnCode == "SUCCESS" && w.ResultCode == "SUCCESS")
 }

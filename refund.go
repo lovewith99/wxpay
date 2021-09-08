@@ -2,14 +2,9 @@ package wxpay
 
 // 申请退款
 // document: https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_4
-type WxPayRefund struct {
-	XMLName struct{} `xml:"xml"`
+type RefundReq struct {
+	Request
 
-	AppId         string `xml:"appid"`
-	MchId         string `xml:"mch_id"`
-	NonceStr      string `xml:"nonce_str"`
-	Sign          string `xml:"sign"`
-	SignType      string `xml:"sign_type,omitempty"`
 	TransactionId string `xml:"transaction_id,omitempty"`
 	OutTradeNo    string `xml:"out_trade_no,omitempty"`
 	OutRefundNo   string `xml:"out_refund_no,omitempty"`
@@ -20,34 +15,11 @@ type WxPayRefund struct {
 	RefundAccount string `xml:"refund_account,omitempty"`
 }
 
-func (w *WxPayRefund) GateWay() string {
+func (w *RefundReq) GateWay() string {
 	return "https://api.mch.weixin.qq.com/secapi/pay/refund"
 }
 
-func (w *WxPayRefund) setAppId(appId string) {
-	w.AppId = appId
-}
-
-func (w *WxPayRefund) setMchId(mchId string) {
-	w.MchId = mchId
-}
-
-func (w *WxPayRefund) setSign(sign string) {
-	w.Sign = sign
-}
-
-func (w *WxPayRefund) SignStr() string {
-	w.NonceStr = RandString(32)
-	p := ReflectStruct(*w)
-
-	return signStr(p)
-}
-
-func (w *WxPayRefund) signType() string {
-	return w.SignType
-}
-
-type WxPayRefundResp struct {
+type RefundResp struct {
 	ReturnCode string `xml:"return_code"`
 	ReturnMsg  string `xml:"return_msg,omitempty"`
 
@@ -78,6 +50,6 @@ type WxPayRefundResp struct {
 	CouponRefundIdN     string `xml:"coupon_refund_id_$n,omitempty"`
 }
 
-func (w *WxPayRefundResp) IsSuccess() bool {
+func (w *RefundResp) IsSuccess() bool {
 	return (w.ReturnCode == "SUCCESS" && w.ResultCode == "SUCCESS")
 }
