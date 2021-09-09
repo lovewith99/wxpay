@@ -35,11 +35,11 @@ type AppPayNotification struct {
 	// CouponCount string `xml:"coupon_count"`
 	// CouponID   string `xml:"coupon_id_$n"`
 	// CouponFee  string `xml:"coupon_fee_$n"`
-	Attach string `xml:"attach,CDATA"`
+	Attach string `xml:"attach,omitempty,CDATA"`
 }
 
 func (v *AppPayNotification) IsSuccess() bool {
-	return v.ReturnCode == "SUCCESS"
+	return v.ResultCode == "SUCCESS"
 }
 
 func (c *AppPayNotification) VerifySign(key string) bool {

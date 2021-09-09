@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/xml"
+	"errors"
 	"net/http"
 	"time"
 )
@@ -47,6 +48,13 @@ func (cli *Client) AppPayNotification(req *http.Request) (*AppPayNotification, e
 
 	var noti AppPayNotification
 	err := xml.NewDecoder(req.Body).Decode(&noti)
+	if err != nil {
+		return &noti, err
+	}
+
+	if !noti.VerifySign(cli.key) {
+		err = errors.New("签名错误")
+	}
 
 	return &noti, err
 }
