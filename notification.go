@@ -1,50 +1,37 @@
 package wxpay
 
-import "reflect"
-
 // 微信支付结果通知(支付回调)
 // 文档： https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
-type AppPayNotification struct {
+type WxAppPayNotification struct {
 	// 微信App支付回调
-	ReturnCode string `xml:"return_code,CDATA"`
-	ReturnMsg  string `xml:"return_msg,omitempty,CDATA"`
+	ReturnCode string `xml:"return_code"`
+	ReturnMsg  string `xml:"return_msg,omitempty"`
 
 	// required
-	AppId         string `xml:"appid,CDATA"`
-	MchId         string `xml:"mch_id,CDATA"`
-	NonceStr      string `xml:"nonce_str,CDATA"`
-	Sign          string `xml:"sign,CDATA"`
-	ResultCode    string `xml:"result_code,omitempty,CDATA"`
-	Openid        string `xml:"openid,CDATA"`
-	TradeType     string `xml:"trade_type,omitempty,CDATA"`
-	BankType      string `xml:"bank_type,omitempty,CDATA"`
-	TotalFee      string `xml:"total_fee,CDATA"`
-	CashFee       string `xml:"cash_fee,CDATA"`
-	TransactionId string `xml:"transaction_id,CDATA"`
-	OutTradeNo    string `xml:"out_trade_no,CDATA"`
-	TimeEnd       string `xml:"time_end,CDATA"`
+	AppId         string `xml:"appid"`
+	MchId         string `xml:"mch_id"`
+	NonceStr      string `xml:"nonce_str"`
+	Sign          string `xml:"sign"`
+	ResultCode    string `xml:"result_code,omitempty"`
+	Openid        string `xml:"openid"`
+	TradeType     string `xml:"trade_type,omitempty"`
+	BankType      string `xml:"bank_type,omitempty"`
+	TotalFee      string `xml:"total_fee"`
+	CashFee       string `xml:"cash_fee"`
+	TransactionId string `xml:"transaction_id"`
+	OutTradeNo    string `xml:"out_trade_no"`
+	TimeEnd       string `xml:"time_end"`
 
-	DeviceInfo  string `xml:"device_info,omitempty,CDATA"`
-	ErrCode     string `xml:"err_code,omitempty,CDATA"`
-	ErrCodeDes  string `xml:"err_code_des,omitempty,CDATA"`
-	IsSubscribe string `xml:"is_subscribe,omitempty,CDATA"`
-	FeeType     string `xml:"fee_type,omitempty,CDATA"`
-	CashFeeType string `xml:"cash_fee_type,omitempty,CDATA"`
+	DeviceInfo  string `xml:"device_info,omitempty"`
+	ErrCode     string `xml:"err_code,omitempty"`
+	ErrCodeDes  string `xml:"err_code_des,omitempty"`
+	IsSubscribe string `xml:"is_subscribe,omitempty"`
+	FeeType     string `xml:"fee_type,omitempty"`
+	CashFeeType string `xml:"cash_fee_type,omitempty"`
 
 	// CouponFee   string `xml:"coupon_fee"`
 	// CouponCount string `xml:"coupon_count"`
 	// CouponID   string `xml:"coupon_id_$n"`
 	// CouponFee  string `xml:"coupon_fee_$n"`
-	Attach string `xml:"attach,omitempty,CDATA"`
-}
-
-func (v *AppPayNotification) IsSuccess() bool {
-	return v.ResultCode == "SUCCESS"
-}
-
-func (c *AppPayNotification) VerifySign(key string) bool {
-	hm := make(map[string]interface{})
-	parseStruct(reflect.ValueOf(c), hm)
-
-	return MakeSign(hm, key, "") == c.Sign
+	Attach string `xml:"attach"`
 }

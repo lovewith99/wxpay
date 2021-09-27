@@ -1,3 +1,3 @@
-module github.com/lovewith99/wxpay/v2
+module wxpay
 
 go 1.16

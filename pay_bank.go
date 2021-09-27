@@ -15,14 +15,43 @@ func (r *RespBase) IsSuccess() bool {
 	return (r.ReturnCode == "SUCCESS" && r.ResultCode == "SUCCESS")
 }
 
-// WxPayPublicKey 获取RSA加密公钥
-// https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=24_7&index=4
-type PublicKeyReq struct {
-	Request
+type ReqBase struct {
+	XMLName struct{} `xml:"xml"`
+
+	MchId    string `xml:"mch_id"` // 商户号
+	NonceStr string `xml:"nonce_str"`
+	Sign     string `xml:"sign"`      // 签名
+	SignType string `xml:"sign_type"` // 签名
 }
 
-func (w *PublicKeyReq) GateWay() string {
+func (r *ReqBase) setMchId(mchId string) {
+	r.MchId = mchId
+}
+func (r *ReqBase) setSign(sign string) {
+	r.Sign = sign
+}
+func (r *ReqBase) signType() string {
+	return r.SignType
+}
+
+func (r *ReqBase) SignStr() string {
+	r.NonceStr = RandString(32)
+	p := ReflectStruct(*r)
+
+	return signStr(p)
+}
+
+// WxPayPublicKey 获取RSA加密公钥
+// https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=24_7&index=4
+type WxPayPublicKey struct {
+	ReqBase
+}
+
+func (w *WxPayPublicKey) GateWay() string {
 	return "https://fraud.mch.weixin.qq.com/risk/getpublickey"
+}
+
+func (w *WxPayPublicKey) setAppId(appId string) {
 }
 
 type PublicKeyResp struct {
@@ -30,9 +59,9 @@ type PublicKeyResp struct {
 	PubKey string `xml:"pub_key,omitempty,CDATA"`
 }
 
-// PayToWalletReq 微信企业付款到零钱包
+// WxPayWallet 微信企业付款到零钱包
 // https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_2
-type PayToWalletReq struct {
+type WxPayWallet struct {
 	XMLName struct{} `xml:"xml"`
 
 	MchAppid string `xml:"mch_appid"` // 申请商户号的appid或商户号绑定的appid
@@ -49,12 +78,35 @@ type PayToWalletReq struct {
 	SpbillCreateIp string `xml:"spbill_create_ip,omitempty"` // 终端IP
 }
 
-func (w *PayToWalletReq) GateWay() string {
+func (w *WxPayWallet) GateWay() string {
 	return "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers"
 }
 
-// PayToWalletResp 企业付款到零钱包返回参数
-type PayToWalletResp struct {
+func (w *WxPayWallet) setAppId(appId string) {
+	w.MchAppid = appId
+}
+
+func (w *WxPayWallet) setMchId(mchId string) {
+	w.MchId = mchId
+}
+
+func (w *WxPayWallet) setSign(sign string) {
+	w.Sign = sign
+}
+
+func (w *WxPayWallet) SignStr() string {
+	w.NonceStr = RandString(32)
+	p := ReflectStruct(*w)
+
+	return signStr(p)
+}
+
+func (w *WxPayWallet) signType() string {
+	return "MD5"
+}
+
+// WxPayWalletResp 企业付款到零钱包返回参数
+type WxPayWalletResp struct {
 	RespBase
 	MchAppid   string `xml:"mch_appid,omitempty,CDATA"`
 	DeviceInfo string `xml:"device_info,omitempty,CDATA"`
@@ -67,7 +119,7 @@ type PayToWalletResp struct {
 
 // WxPayBank 微信付款到银行卡
 // https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=24_2
-type PayToBankCardReq struct {
+type WxPayBank struct {
 	XMLName struct{} `xml:"xml"`
 
 	MchId          string `xml:"mch_id,omitempty"`
@@ -82,12 +134,34 @@ type PayToBankCardReq struct {
 }
 
 // GateWay ...
-func (w *PayToBankCardReq) GateWay() string {
+func (w *WxPayBank) GateWay() string {
 	return "https://api.mch.weixin.qq.com/mmpaysptrans/pay_bank"
 }
 
-// PayToBankCardResp 微信付款到银行卡返回结果
-type PayToBankCardResp struct {
+func (w *WxPayBank) setAppId(appId string) {
+}
+
+func (w *WxPayBank) setMchId(mchId string) {
+	w.MchId = mchId
+}
+
+func (w *WxPayBank) setSign(sign string) {
+	w.Sign = sign
+}
+
+func (w *WxPayBank) SignStr() string {
+	w.NonceStr = RandString(32)
+	p := ReflectStruct(*w)
+
+	return signStr(p)
+}
+
+func (w *WxPayBank) signType() string {
+	return "MD5"
+}
+
+// WxPayBank 微信付款到银行卡返回结果
+type WxPayBankResp struct {
 	RespBase
 	PartnerTradeNo string `xml:"partner_trade_no,omitempty,CDATA"`
 	Amount         int    `xml:"amount,omitempty,CDATA"`
@@ -98,8 +172,8 @@ type PayToBankCardResp struct {
 	CmmsAmt   int    `xml:"cmms_amt,omitempty,CDATA"`
 }
 
-// PayToWalletStatusQueryReq 查询付款到钱包状态
-type PayToWalletStatusQueryReq struct {
+// WxQueryPayWallet 查询付款到钱包状态
+type WxQueryPayWallet struct {
 	XMLName struct{} `xml:"xml"`
 
 	AppId          string `xml:"appid"`
@@ -110,12 +184,34 @@ type PayToWalletStatusQueryReq struct {
 }
 
 // GateWay ...
-func (w *PayToWalletStatusQueryReq) GateWay() string {
+func (w *WxQueryPayWallet) GateWay() string {
 	return "https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo"
 }
+func (w *WxQueryPayWallet) setAppId(appId string) {
+	w.AppId = appId
+}
 
-// PayToWalletStatusQueryResp 返回结果
-type PayToWalletStatusQueryResp struct {
+func (w *WxQueryPayWallet) setMchId(mchId string) {
+	w.MchId = mchId
+}
+
+func (w *WxQueryPayWallet) setSign(sign string) {
+	w.Sign = sign
+}
+
+func (w *WxQueryPayWallet) SignStr() string {
+	w.NonceStr = RandString(32)
+	p := ReflectStruct(*w)
+
+	return signStr(p)
+}
+
+func (w *WxQueryPayWallet) signType() string {
+	return "MD5"
+}
+
+// WxQueryPayWalletResp 返回结果
+type WxQueryPayWalletResp struct {
 	RespBase
 	PartnerTradeNo string `xml:"partner_trade_no,omitempty,CDATA"`
 	DetailID       string `xml:"detail_id,omitempty,CDATA"`
@@ -128,8 +224,8 @@ type PayToWalletStatusQueryResp struct {
 	Desc           string `xml:"desc,omitempty,CDATA"`
 }
 
-// PayToBankCardStatusQueryReq 查询企业付款银行卡
-type PayToBankCardStatusQueryReq struct {
+// WxQueryPayBank 查询企业付款银行卡
+type WxQueryPayBank struct {
 	XMLName struct{} `xml:"xml"`
 
 	MchId          string `xml:"mch_id,omitempty"`
@@ -139,12 +235,34 @@ type PayToBankCardStatusQueryReq struct {
 }
 
 // GateWay ...
-func (b *PayToBankCardStatusQueryReq) GateWay() string {
+func (b *WxQueryPayBank) GateWay() string {
 	return "https://api.mch.weixin.qq.com/mmpaysptrans/query_bank"
 }
+func (b *WxQueryPayBank) setAppId(appId string) {
+	// w.AppId = appId
+}
 
-// PayToBankCardStatusQueryResp 返回结果
-type PayToBankCardStatusQueryResp struct {
+func (b *WxQueryPayBank) setMchId(mchId string) {
+	b.MchId = mchId
+}
+
+func (b *WxQueryPayBank) setSign(sign string) {
+	b.Sign = sign
+}
+
+func (b *WxQueryPayBank) SignStr() string {
+	b.NonceStr = RandString(32)
+	p := ReflectStruct(*b)
+
+	return signStr(p)
+}
+
+func (b *WxQueryPayBank) signType() string {
+	return "MD5"
+}
+
+// WxQueryPayBankResp 返回结果
+type WxQueryPayBankResp struct {
 	RespBase
 	PaymentNo      string `xml:"payment_no,omitempty,CDATA"`
 	PartnerTradeNo string `xml:"partner_trade_no,omitempty,CDATA"`
